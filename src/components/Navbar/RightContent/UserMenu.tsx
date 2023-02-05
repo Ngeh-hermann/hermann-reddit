@@ -8,8 +8,9 @@ import { IoSparkles } from 'react-icons/io5'
 import { CgProfile } from 'react-icons/cg'
 import { MdOutlineLogin } from 'react-icons/md'
 import { auth } from '@/firebase/clientApp';
-import { useSetRecoilState } from 'recoil';
+import { useResetRecoilState, useSetRecoilState } from 'recoil';
 import { AuthModalState } from '@/atoms/authModalAtom';
+import { communityState } from '@/atoms/communitiesAtom';
 
 type UserMenuProps = {
     user?: User | null;
@@ -18,6 +19,13 @@ type UserMenuProps = {
 const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
 
     const setAuthModalState = useSetRecoilState(AuthModalState)
+    const resetCommunityState = useResetRecoilState(communityState)
+
+    const logout = async () => {
+        await signOut(auth)
+        // clear community state
+        resetCommunityState();
+    }
 
     return (
         <Menu>
@@ -54,14 +62,22 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
             <MenuList >
                 {user ? (
                     <>
-                        <MenuItem fontSize="10pt" fontWeight={700} _hover={{ bg: 'blue.500', color: 'white' }}>
+                        <MenuItem
+                            fontSize="10pt"
+                            fontWeight={700}
+                            _hover={{ bg: 'blue.500', color: 'white' }}
+                        >
                             <Flex align="center">
                                 <Icon fontSize={20} mr={2} as={CgProfile} />
                                 Profile
                             </Flex>
                         </MenuItem>
                         <MenuDivider />
-                        <MenuItem fontSize="10pt" fontWeight={700} _hover={{ bg: 'brand.100', color: 'white' }} onClick={() => signOut(auth)}>
+                        <MenuItem fontSize="10pt"
+                            fontWeight={700}
+                            _hover={{ bg: 'brand.100', color: 'white' }}
+                            onClick={logout}
+                        >
                             <Flex align="center">
                                 <Icon fontSize={20} mr={2} as={MdOutlineLogin} />
                                 Log Out
@@ -70,7 +86,12 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                     </>
                 ) : (
                     <>
-                        <MenuItem fontSize="10pt" fontWeight={700} _hover={{ bg: 'blue.500', color: 'white' }} onClick={() => setAuthModalState({ open: true, view: 'login' })}>
+                        <MenuItem
+                            fontSize="10pt"
+                            fontWeight={700}
+                            _hover={{ bg: 'blue.500', color: 'white' }}
+                            onClick={() => setAuthModalState({ open: true, view: 'login' })}
+                        >
                             <Flex align="center">
                                 <Icon fontSize={20} mr={2} as={MdOutlineLogin} />
                                 Log In / Sign Up
