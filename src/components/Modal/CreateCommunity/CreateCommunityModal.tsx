@@ -102,7 +102,10 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ open, handl
                     <Box pl={3} pr={3}>
                         <Divider />
                         <ModalCloseButton />
-                        <ModalBody display='flex' flexDirection='column' padding="10px 0px">
+                        <ModalBody
+                            display='flex'
+                            flexDirection='column'
+                            padding="10px 0px">
                             <Text fontSize={15} fontWeight={700}>
                                 name
                             </Text>
@@ -111,7 +114,9 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ open, handl
                             </Text>
                             <Text
                                 position='relative'
-                                top='28px' left='10px' width='20px' color='gray.400'>r/</Text>
+                                top='28px' left='10px' width='20px' color='gray.400'>
+                                r/
+                            </Text>
                             <Input
                                 position='relative'
                                 value={communityName}
