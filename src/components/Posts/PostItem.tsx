@@ -1,5 +1,5 @@
 import { Post } from '@/atoms/postsAtom';
-import { Alert, AlertIcon, Flex, Icon, Image, Skeleton, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Alert, AlertIcon, Divider, Flex, Icon, Image, Skeleton, Spinner, Stack, Text } from '@chakra-ui/react';
 import moment from 'moment';
 import React, { useState } from 'react';
 import { AiOutlineDelete } from "react-icons/ai";
@@ -18,12 +18,19 @@ type PostItemProps = {
     post: Post;
     userIsCreator: boolean;
     userVoteValue?: number;
-    onVote: () => {};
+    onVote: (post: Post, vote: number, communityId: string) => void;
     onDeletePost: (post: Post) => Promise<Boolean>;
     onSelectPost: () => void;
 };
 
-const PostItem: React.FC<PostItemProps> = ({ post, userIsCreator, userVoteValue, onVote, onDeletePost, onSelectPost }) => {
+const PostItem: React.FC<PostItemProps> = ({
+    post,
+    userIsCreator,
+    userVoteValue,
+    onVote,
+    onDeletePost,
+    onSelectPost
+}) => {
 
     const [loadingImage, setLoadingImage] = useState(true)
     const [loadingDelete, setLoadingDelete] = useState(false)
@@ -69,7 +76,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, userIsCreator, userVoteValue,
                     }
                     color={userVoteValue === 1 ? 'brand.100' : 'gray.400'}
                     fontSize={22}
-                    onClick={onVote}
+                    onClick={() => onVote(post, 1, post.communityId)}
                     cursor='pointer'
                 />
                 <Text fontSize='9pt'>{post.voteStatus}</Text>
@@ -79,7 +86,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, userIsCreator, userVoteValue,
                     }
                     color={userVoteValue === -1 ? '#4379ff' : 'gray.400'}
                     fontSize={22}
-                    onClick={onVote}
+                    onClick={() => onVote(post, -1, post.communityId)}
                     cursor='pointer'
                 />
             </Flex>
@@ -94,7 +101,9 @@ const PostItem: React.FC<PostItemProps> = ({ post, userIsCreator, userVoteValue,
                     <Stack direction='row' spacing={0.6} align='center' fontSize='9pt'>
                         {/* home page check */}
                         <Text>
-                            Posted by u/{post.creatorDisplayName}{' '}
+                            Posted by <span style={{ fontWeight: 'bold' }}>
+                                u/{post.creatorDisplayName}
+                            </span>{' '}
                             {moment(new Date(post.createdAt?.seconds * 1000)).fromNow()}
                         </Text>
                     </Stack>
@@ -115,6 +124,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, userIsCreator, userVoteValue,
                         </Flex>
                     )}
                 </Stack>
+                <Divider />
                 <Flex ml={1} mb={0.5} color="gray.500" fontWeight={600}>
                     <Flex
                         align='center'

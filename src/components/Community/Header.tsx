@@ -1,7 +1,9 @@
 import { Community } from '@/atoms/communitiesAtom';
+import { auth } from '@/firebase/clientApp';
 import useCommunityData from '@/hooks/useCommunityData';
 import { Box, Button, Flex, Icon, Image, Text } from '@chakra-ui/react';
 import React from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { FaReddit } from 'react-icons/fa';
 
 type HeaderProps = {
@@ -9,6 +11,8 @@ type HeaderProps = {
 };
 
 const Header: React.FC<HeaderProps> = ({ communityData }) => {
+
+    const [user] = useAuthState(auth);
 
     const { communityStateValue, onJoinOrLeaveCommunity, loading } = useCommunityData()
 
@@ -22,8 +26,16 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
                 <Box height='50%' bg='blue.400' />
                 <Flex justify='center' bg='white' flexGrow={1}>
                     <Flex width='95%' maxWidth='860px'>
-                        {communityData.imageURL ? (
-                            <Image />
+                        {communityStateValue.currentCommunity?.imageURL ? (
+                            <Image
+                                borderRadius='full'
+                                boxSize='66px'
+                                alt='Mojotron Image'
+                                position='relative'
+                                top={-3}
+                                color='blue.500'
+                                border='4px solid #fff'
+                                src={communityStateValue.currentCommunity.imageURL} />
                         ) : (
 
                             <Icon as={FaReddit}
@@ -47,6 +59,7 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
                                 variant={isJoined ? 'outline' : 'solid'}
                                 height='30px'
                                 pr={6} pl={6}
+                                isDisabled={user?.uid === communityData.creatorId}
                                 isLoading={loading}
                                 onClick={
                                     () => onJoinOrLeaveCommunity(communityData, isJoined)

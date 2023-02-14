@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth'
 import { User } from 'firebase/auth';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 
 
 const SignUp: React.FC = () => {
@@ -51,8 +51,13 @@ const SignUp: React.FC = () => {
     }
 
     //user doc in firestore
+    // const createUserDocument = async (user: User) => {
+    //     await addDoc(collection(firestore, "users",), JSON.parse(JSON.stringify(user)));
+    // }
+
     const createUserDocument = async (user: User) => {
-        await addDoc(collection(firestore, "users"), JSON.parse(JSON.stringify(user)));
+        const userDocRef = doc(firestore, "users", user.uid);
+        await setDoc(userDocRef, JSON.parse(JSON.stringify(user)));
     }
 
     useEffect(() => {

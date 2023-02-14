@@ -26,6 +26,11 @@ const useCommunityData = () => {
             return
         }
 
+        // if (user.uid === communityData.creatorId) {
+        //     isJoined = true;
+        //     return
+        // }
+
         if (isJoined) {
             leaveCommunity(communityData.id)
             return;
@@ -115,7 +120,7 @@ const useCommunityData = () => {
             await batch.commit()
 
             //update recoil state ie communityState.mysnippets
-            setCommunityStateValue(prev => ({
+            setCommunityStateValue((prev) => ({
                 ...prev,
                 mySnippets: prev.mySnippets.filter(
                     item => item.communityId !== communityId
