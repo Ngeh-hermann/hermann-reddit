@@ -1,7 +1,8 @@
 import { AuthModalState } from '@/atoms/authModalAtom';
 import { Community, communitySnippets, communityState } from '@/atoms/communitiesAtom';
 import { auth, firestore } from '@/firebase/clientApp';
-import { collection, doc, getDocs, increment, writeBatch } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, increment, writeBatch } from 'firebase/firestore';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -10,6 +11,7 @@ import { useRecoilState, useSetRecoilState } from 'recoil';
 const useCommunityData = () => {
 
     const [user] = useAuthState(auth)
+    const router = useRouter()
 
     const [communityStateValue, setCommunityStateValue] = useRecoilState(communityState);
 
@@ -133,10 +135,45 @@ const useCommunityData = () => {
         setLoading(false)
     }
 
+    const getCommunityData = async (communityId: string) => {
+        try {
+
+            const communityDocRef = doc(firestore, "communities", communityId);
+            const communityDoc = await getDoc(communityDocRef);
+
+            setCommunityStateValue((prev) => ({
+                ...prev,
+                currentCommunity: {
+                    id: communityDoc.id,
+                    ...communityDoc.data(),
+                } as Community
+            }));
+
+        } catch (error: any) {
+            console.log('getCommunityData error', error.message);
+
+        }
+    }
+
     useEffect(() => {
-        if (!user) return
+        if (!user) {
+            // clear postVotes and communitySnippets when log out
+            setCommunityStateValue((prev) => ({
+                ...prev,
+                mySnippets: []
+            }));
+            return;
+        }
         getMySnippets()
-    }, [user])
+    }, [user]);
+
+    useEffect(() => {
+        const { communityId } = router.query;
+
+        if (communityId && !communityStateValue.currentCommunity) {
+            getCommunityData(communityId as string)
+        }
+    }, [router.query, communityStateValue.currentCommunity])
 
 
     return {

@@ -1,24 +1,41 @@
+import { AuthModalState } from '@/atoms/authModalAtom';
 import { communityState } from '@/atoms/communitiesAtom';
 import { Post, postSate, PostVote } from '@/atoms/postsAtom';
 import { auth, firestore, storage } from '@/firebase/clientApp';
 import { collection, deleteDoc, doc, getDocs, query, where, writeBatch } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
+import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 
 
 const usePosts = () => {
 
     const [user] = useAuthState(auth);
 
+    const router = useRouter();
+
     const [postStateValue, setPostStateValue] = useRecoilState(postSate)
 
     const currentCommunity = useRecoilValue(communityState).currentCommunity;
 
-    const onVote = async (post: Post, vote: number, communityId: string) => {
+    const setAuthModalState = useSetRecoilState(AuthModalState)
+
+    const onVote = async (
+        event: React.MouseEvent<SVGElement, MouseEvent>,
+        post: Post,
+        vote: number,
+        communityId: string
+    ) => {
+        // prevent clicking on vote icon open singlePostPage
+        event.stopPropagation()
 
         // Check for a logged in user => if not, open auth modal
+        if (!user?.uid) {
+            setAuthModalState({ open: true, view: 'login' });
+            return;
+        }
 
         try {
 
@@ -106,13 +123,7 @@ const usePosts = () => {
                 }
             }
 
-            // update our post document
-            const postRef = doc(firestore, 'posts', post.id!);
-            batch.update(postRef, {
-                voteStatus: voteStatus + voteChange
-            });
 
-            await batch.commit();
 
             //Update state with updated values 
             const postIdx = postStateValue.posts.findIndex(
@@ -125,12 +136,34 @@ const usePosts = () => {
                 postVotes: updatedPostVotes,
             }));
 
+            // update votes if user vote on singlePostPage
+            if (postStateValue.selectedPost) {
+                setPostStateValue((prev) => ({
+                    ...prev,
+                    selectedPost: updatedPost
+                }));
+            }
+
+            // update our post document
+            const postRef = doc(firestore, 'posts', post.id!);
+            batch.update(postRef, {
+                voteStatus: voteStatus + voteChange
+            });
+
+            await batch.commit();
+
         } catch (error: any) {
             console.log('onVote error', error.message);
         }
     }
 
-    const onSelectPost = () => { }
+    const onSelectPost = (post: Post) => {
+        setPostStateValue((prev) => ({
+            ...prev,
+            selectedPost: post,
+        }));
+        router.push(`/r/${post.communityId}/comments/${post.id}`);
+    }
 
     const onDeletePost = async (post: Post): Promise<Boolean> => {
         try {
@@ -161,21 +194,32 @@ const usePosts = () => {
         );
 
         const postVoteDocs = await getDocs(postVotesQuery);
-        const postVotes = postVoteDocs.docs.map(doc => ({
+        const postVotes = postVoteDocs.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
         }));
 
-        setPostStateValue(prev => ({
+        setPostStateValue((prev) => ({
             ...prev,
             postVotes: postVotes as PostVote[],
         }));
     }
 
+    // execute function when page load
     useEffect(() => {
         if (!user || !currentCommunity?.id) return
         getCommunityPostVotes(currentCommunity?.id)
     }, [user, currentCommunity]);
+
+    useEffect(() => {
+        if (!user) {
+            // Clear user postVotes and communitySnippets when log out
+            setPostStateValue((prev) => ({
+                ...prev,
+                postVotes: []
+            }))
+        }
+    }, [user])
 
     return {
         postStateValue,
