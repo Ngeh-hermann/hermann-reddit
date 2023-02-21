@@ -5,10 +5,12 @@ import Header from '@/components/Community/Header';
 import NotFound from '@/components/Community/NotFound';
 import PageContent from '@/components/Layout/PageContent';
 import Posts from '@/components/Posts/Posts';
-import { firestore } from '@/firebase/clientApp';
+import { auth, firestore } from '@/firebase/clientApp';
+import useCommunityData from '@/hooks/useCommunityData';
 import { doc, getDoc } from 'firebase/firestore';
 import { GetServerSidePropsContext } from 'next';
 import React, { useEffect } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { useSetRecoilState } from 'recoil';
 import safeJsonStringify from 'safe-json-stringify'
 
@@ -17,7 +19,16 @@ type communityPageProps = {
 };
 
 const communityPage: React.FC<communityPageProps> = ({ communityData }) => {
+
+    const [user] = useAuthState(auth);
+
     const setCommunityStateValue = useSetRecoilState(communityState);
+
+    const { communityStateValue } = useCommunityData();
+
+    const isJoined = !!communityStateValue.mySnippets.find(
+        (item) => item.communityId === communityData.id
+    )
 
 
 
@@ -36,7 +47,7 @@ const communityPage: React.FC<communityPageProps> = ({ communityData }) => {
             <Header communityData={communityData} />
             <PageContent>
                 <>
-                    <CreatePostLink />
+                    {isJoined && <CreatePostLink />}
                     <Posts communityData={communityData} />
                 </>
                 <>

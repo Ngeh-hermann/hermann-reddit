@@ -1,5 +1,6 @@
 import { Community, communityState } from '@/atoms/communitiesAtom';
 import { auth, firestore, storage } from '@/firebase/clientApp';
+import useCommunityData from '@/hooks/useCommunityData';
 import useSelectFile from '@/hooks/useSelectFile';
 import { Box, Button, Divider, Flex, Icon, Image, Input, Spinner, Stack, Text } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -26,6 +27,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
     const { selectedFile, setSelectedFile, onSelectFile } = useSelectFile()
     const [uploadingImage, setUploadingImage] = useState(false)
     const setCommunityStateValue = useSetRecoilState(communityState)
+    const { communityStateValue } = useCommunityData();
 
     const onUpdateImage = async () => {
         if (!selectedFile) return;
@@ -52,6 +54,10 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
         }
         setUploadingImage(false)
     }
+
+    const isJoined = !!communityStateValue.mySnippets.find(
+        (item) => item.communityId === communityData.id
+    )
 
     return (
         <Box position='sticky' top='14px'>
@@ -93,9 +99,11 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                             </Text>
                         )}
                     </Flex>
-                    <Link href={`/r/${communityData.id}/submit`}>
-                        <Button mt={3} height='30px' width='100%'>Create Post</Button>
-                    </Link>
+                    {isJoined &&
+                        <Link href={`/r/${communityData.id}/submit`}>
+                            <Button mt={3} height='30px' width='100%'>Create Post</Button>
+                        </Link>
+                    }
                     {user?.uid === communityData.creatorId && (
                         <>
                             <Divider />
