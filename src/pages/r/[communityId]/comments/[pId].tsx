@@ -69,7 +69,8 @@ const PostPage: React.FC = () => {
                 <Comments
                     user={user as User}
                     selectedPost={postStateValue.selectedPost}
-                    communityId={postStateValue.selectedPost?.communityId as string} />
+                    communityId={postStateValue.selectedPost?.communityId as string}
+                />
             </>
             <>
                 {communityStateValue.currentCommunity && (

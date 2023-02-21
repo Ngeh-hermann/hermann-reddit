@@ -17,7 +17,6 @@ type communityPageProps = {
 };
 
 const communityPage: React.FC<communityPageProps> = ({ communityData }) => {
-    console.log('here is the community data', communityData);
     const setCommunityStateValue = useSetRecoilState(communityState);
 
     if (!communityData) {
@@ -29,7 +28,7 @@ const communityPage: React.FC<communityPageProps> = ({ communityData }) => {
             ...prev,
             currentCommunity: communityData
         }))
-    }, [])
+    }, [communityData])
 
     return (
         <>

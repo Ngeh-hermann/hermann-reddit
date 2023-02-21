@@ -1,5 +1,6 @@
 import { AuthModalState } from "@/atoms/authModalAtom";
 import { auth } from "@/firebase/clientApp";
+import useDirectory from "@/hooks/useDirectory";
 import { Flex, Icon, Input } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
@@ -15,6 +16,7 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
     const router = useRouter();
     const [user] = useAuthState(auth);
     const setAuthModalState = useSetRecoilState(AuthModalState);
+    const { toggleMenuOpen } = useDirectory();
 
     const onClick = () => {
         if (!user) {
@@ -23,7 +25,12 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
         }
 
         const { communityId } = router.query;
-        router.push(`/r/${communityId}/submit`);
+        // check user is in a community when clicked on the createPostLink
+        if (communityId) {
+            router.push(`/r/${communityId}/submit`);
+            return
+        }
+        toggleMenuOpen()
     };
     return (
         <Flex

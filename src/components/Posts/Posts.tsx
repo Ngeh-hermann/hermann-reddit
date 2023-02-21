@@ -55,7 +55,7 @@ const Posts: React.FC<PostsProps> = ({ communityData }) => {
 
     useEffect(() => {
         getPosts()
-    }, [])
+    }, [communityData])
 
     // console.log('This is postStateValue', postStateValue);
 

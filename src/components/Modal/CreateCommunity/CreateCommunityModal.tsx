@@ -1,6 +1,8 @@
 import { auth, firestore } from '@/firebase/clientApp';
+import useDirectory from '@/hooks/useDirectory';
 import { Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Box, Divider, Text, Input, Stack, Checkbox, Flex, Icon } from '@chakra-ui/react';
 import { doc, getDoc, runTransaction, serverTimestamp, setDoc, Transaction } from 'firebase/firestore';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { BsFillEyeFill, BsFillPersonFill } from 'react-icons/bs'
@@ -19,6 +21,8 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ open, handl
     const [communityType, setCommunityType] = useState('public')
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
+    const router = useRouter();
+    const { toggleMenuOpen } = useDirectory()
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.value.length > 21) return;
@@ -74,8 +78,11 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ open, handl
                         isModerator: true,
                     }
                 );
-            })
+            });
 
+            handleClose();
+            toggleMenuOpen();
+            router.push(`r/${communityName}`);
 
         } catch (error: any) {
             console.log('handleCreateCommunity error', error)
@@ -174,7 +181,11 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ open, handl
                         <Button variant='outline' height='30px' mr={3} onClick={handleClose}>
                             Cancel
                         </Button>
-                        <Button height='30px' onClick={handleCreateCommunity} isLoading={loading}>
+                        <Button
+                            height='30px'
+                            onClick={handleCreateCommunity}
+                            isLoading={loading}
+                        >
                             Create Community
                         </Button>
                     </ModalFooter>

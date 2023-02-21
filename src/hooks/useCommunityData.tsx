@@ -48,10 +48,12 @@ const useCommunityData = () => {
                 collection(firestore, `users/${user?.uid}/communitySnippets`)
             );
 
-            const snippets = snippetsDocs.docs.map(doc => ({ ...doc.data() }))
+            const snippets = snippetsDocs.docs.map(doc => ({ ...doc.data() }));
+
             setCommunityStateValue(prev => ({
                 ...prev,
-                mySnippets: snippets as communitySnippets[]
+                mySnippets: snippets as communitySnippets[],
+                snippetsFetched: true,
             }))
 
         } catch (error: any) {
@@ -71,6 +73,7 @@ const useCommunityData = () => {
             const newSnippets: communitySnippets = {
                 communityId: communityData.id,
                 imageURL: communityData.imageURL || "",
+                isModerator: user?.uid === communityData.creatorId,
             }
 
             batch.set(
@@ -160,7 +163,8 @@ const useCommunityData = () => {
             // clear postVotes and communitySnippets when log out
             setCommunityStateValue((prev) => ({
                 ...prev,
-                mySnippets: []
+                mySnippets: [],
+                snippetsFetched: false,
             }));
             return;
         }

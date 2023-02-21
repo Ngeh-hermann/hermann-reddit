@@ -58,18 +58,12 @@ const usePosts = () => {
                     collection(firestore, "users", `${user?.uid}/postVotes`)
                 );
 
-                console.log('postVotes ref', postVoteRef);
-
-
                 const newVote: PostVote = {
                     id: postVoteRef.id,
                     postId: post.id!,
                     communityId,
                     voteValue: vote, //1 or -1
                 }
-
-                console.log('NEW VOTE !!!', newVote);
-
 
                 batch.set(postVoteRef, newVote);
 
