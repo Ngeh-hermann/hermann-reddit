@@ -25,7 +25,7 @@ const Navbar: React.FC = () => {
                 >
                     <Image src="/images/redditFace.svg" height="30px" />
                     <Image src="/images/redditText.svg" height="46px"
-                        display={{ base: 'none', md: 'unset' }} />
+                        display={{ base: 'none', md: 'unset' }} alt="" />
                 </Flex>
                 {user && <Directory />}
                 <SearchInput user={user} />

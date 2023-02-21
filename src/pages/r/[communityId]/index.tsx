@@ -19,9 +19,7 @@ type communityPageProps = {
 const communityPage: React.FC<communityPageProps> = ({ communityData }) => {
     const setCommunityStateValue = useSetRecoilState(communityState);
 
-    if (!communityData) {
-        return <NotFound />
-    }
+
 
     useEffect(() => {
         setCommunityStateValue((prev) => ({
@@ -30,6 +28,9 @@ const communityPage: React.FC<communityPageProps> = ({ communityData }) => {
         }))
     }, [communityData])
 
+    if (!communityData) {
+        return <NotFound />
+    }
     return (
         <>
             <Header communityData={communityData} />
