@@ -41,14 +41,6 @@ const SignUp: React.FC = () => {
         }
         // password match
         createUserWithEmailAndPassword(signUpForm.email, signUpForm.password);
-        toast({
-            title: 'Account Created',
-            description: 'We have created your account for you !',
-            position: 'top',
-            isClosable: true,
-            duration: 6000,
-            status: 'success',
-        })
 
     }
 
