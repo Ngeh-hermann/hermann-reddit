@@ -26,27 +26,11 @@ const Login: React.FC<LoginProps> = () => {
     ] = useSignInWithEmailAndPassword(auth);
 
     // Firebase logic
-    const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        const login = await signInWithEmailAndPassword(loginForm.email, loginForm.password)
-        if (login) {
-            toast({
-                title: `Welcome back ${loginForm.email?.split("@")[0]}`,
-                status: 'success',
-                isClosable: true,
-                duration: 4000,
-                position: 'top',
-            })
-        } else {
-            toast({
-                title: `Incorrect Email or Password !`,
-                status: 'error',
-                isClosable: true,
-                duration: 4000,
-                position: 'top',
-            })
-        }
+        signInWithEmailAndPassword(loginForm.email, loginForm.password)
+
     }
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
