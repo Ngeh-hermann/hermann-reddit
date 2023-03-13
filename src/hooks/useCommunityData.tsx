@@ -1,6 +1,7 @@
 import { AuthModalState } from '@/atoms/authModalAtom';
 import { Community, communitySnippets, communityState } from '@/atoms/communitiesAtom';
 import { auth, firestore } from '@/firebase/clientApp';
+import { useToast } from '@chakra-ui/react';
 import { collection, doc, getDoc, getDocs, increment, writeBatch } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -18,6 +19,17 @@ const useCommunityData = () => {
     const setAuthModalState = useSetRecoilState(AuthModalState)
 
     const [loading, setLoading] = useState(false)
+    const toast = useToast();
+
+    const infoMessage = (infoTitle: any) => {
+        toast({
+            title: `${infoTitle}`,
+            status: 'info',
+            duration: 5000,
+            isClosable: false,
+            position: 'top',
+        })
+    }
 
     const onJoinOrLeaveCommunity = (communityData: Community, isJoined: boolean) => {
         // is the user signed in ?
@@ -25,6 +37,7 @@ const useCommunityData = () => {
         if (!user) {
             //open modal
             setAuthModalState({ open: true, view: "login" })
+            infoMessage("Please Login first.");
             return
         }
 
@@ -107,8 +120,6 @@ const useCommunityData = () => {
     const leaveCommunity = async (communityId: string) => {
         setLoading(true)
 
-
-
         try {
             const batch = writeBatch(firestore)
 
@@ -157,6 +168,8 @@ const useCommunityData = () => {
 
         }
     }
+
+
 
     useEffect(() => {
         if (!user) {

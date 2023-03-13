@@ -1,7 +1,7 @@
 import { AuthModalState } from '@/atoms/authModalAtom';
 import { auth, firestore } from '../../../firebase/clientApp';
 import { FIREBASE_ERRORS } from '../../../firebase/errors';
-import { Input, Button, Flex, Text } from '@chakra-ui/react';
+import { Input, Button, Flex, Text, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth'
@@ -10,6 +10,8 @@ import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 
 
 const SignUp: React.FC = () => {
+
+    const toast = useToast();
 
     const setAuthModalState = useSetRecoilState(AuthModalState)
 
@@ -39,6 +41,14 @@ const SignUp: React.FC = () => {
         }
         // password match
         createUserWithEmailAndPassword(signUpForm.email, signUpForm.password);
+        toast({
+            title: 'Account Created',
+            description: 'We have created your account for you !',
+            position: 'top',
+            isClosable: true,
+            duration: 6000,
+            status: 'success',
+        })
 
     }
 

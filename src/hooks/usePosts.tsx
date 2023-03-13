@@ -8,10 +8,10 @@ import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-
+import { useToast } from '@chakra-ui/react';
 
 const usePosts = () => {
-
+    const toast = useToast();
     const [user] = useAuthState(auth);
 
     const router = useRouter();
@@ -174,10 +174,18 @@ const usePosts = () => {
                 ...prev,
                 posts: prev.posts.filter(item => item.id !== post.id)
             }))
+            toast({
+                title: 'Post Deleted !',
+                status: 'success',
+                duration: 3000,
+                isClosable: true,
+                position: 'top',
+            })
             return true
         } catch (error) {
             return false
         }
+
     }
 
     // get current community postVotes and store in recoil state for client

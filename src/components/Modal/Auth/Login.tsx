@@ -1,9 +1,9 @@
 import { AuthModalState } from '@/atoms/authModalAtom';
 import { auth } from '@/firebase/clientApp';
 import { FIREBASE_ERRORS } from '@/firebase/errors';
-import { Input, Button, Flex, Text } from '@chakra-ui/react';
+import { Input, Button, Flex, Text, useToast } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useAuthState, useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { useSetRecoilState } from 'recoil'
 
 type LoginProps = {
@@ -12,6 +12,7 @@ type LoginProps = {
 
 const Login: React.FC<LoginProps> = () => {
     const setAuthModalState = useSetRecoilState(AuthModalState)
+    const toast = useToast();
     const [loginForm, setLoginForm] = useState({
         email: '',
         password: '',
@@ -29,6 +30,13 @@ const Login: React.FC<LoginProps> = () => {
         event.preventDefault();
 
         signInWithEmailAndPassword(loginForm.email, loginForm.password)
+        toast({
+            title: `Welcome back ${loginForm.email?.split("@")[0]}`,
+            status: 'success',
+            isClosable: true,
+            duration: 4000,
+            position: 'top',
+        })
     }
 
     const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {

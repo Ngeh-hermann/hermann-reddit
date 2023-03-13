@@ -1,6 +1,6 @@
 import { auth, firestore } from '@/firebase/clientApp';
 import useDirectory from '@/hooks/useDirectory';
-import { Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Box, Divider, Text, Input, Stack, Checkbox, Flex, Icon } from '@chakra-ui/react';
+import { Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Box, Divider, Text, Input, Stack, Checkbox, Flex, Icon, useToast } from '@chakra-ui/react';
 import { doc, getDoc, runTransaction, serverTimestamp, setDoc, Transaction } from 'firebase/firestore';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
@@ -23,6 +23,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ open, handl
     const [loading, setLoading] = useState(false)
     const router = useRouter();
     const { toggleMenuOpen } = useDirectory()
+    const toast = useToast();
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.value.length > 21) return;
@@ -83,13 +84,25 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({ open, handl
             handleClose();
             toggleMenuOpen();
             router.push(`r/${communityName}`);
+            toast({
+                title: `Community ${communityName} created`,
+                duration: 6000,
+                isClosable: true,
+                position: 'top',
+                status: 'success',
+            })
 
         } catch (error: any) {
             console.log('handleCreateCommunity error', error)
             setError(error.message)
+            toast({
+                title: `Error while creating communnity please try again !`,
+                duration: 6000,
+                isClosable: true,
+                position: 'top',
+                status: 'error',
+            })
         }
-
-
         setLoading(false)
     }
 

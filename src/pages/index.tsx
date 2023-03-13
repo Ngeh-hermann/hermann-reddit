@@ -9,8 +9,8 @@ import PostLoader from '@/components/Posts/PostLoader';
 import { auth, firestore } from '@/firebase/clientApp';
 import useCommunityData from '@/hooks/useCommunityData';
 import usePosts from '@/hooks/usePosts';
-import { Stack } from '@chakra-ui/react';
-import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
+import { Button, Stack } from '@chakra-ui/react';
+import { collection, getCountFromServer, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -19,6 +19,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 const Home: NextPage = () => {
   const [user, loadingUser] = useAuthState(auth);
   const [loading, setLoading] = useState(false);
+  const [loadMore, setLoadmore] = useState(false);
   const { postStateValue, setPostStateValue, onSelectPost, onDeletePost, onVote } = usePosts();
   const { communityStateValue } = useCommunityData();
 
@@ -35,19 +36,51 @@ const Home: NextPage = () => {
         const postQuery = query(
           collection(firestore, 'posts'),
           where('communityId', 'in', myCommunityIds),
-          limit(10)
+          limit(50)
         );
 
-        const postDocs = await getDocs(postQuery);
-        const posts = postDocs.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const numberOfposts = await getCountFromServer(postQuery);
 
-        setPostStateValue((prev) => ({
-          ...prev,
-          posts: posts as Post[],
-        }));
+        // const postDocs = await getDocs(postQuery);
+        console.log('Number of posts of user communities', numberOfposts.data().count);
+
+        if (numberOfposts.data().count < 5 && user) {
+          console.log('enter if statement');
+          setLoadmore(true)
+
+          // const postQuery = query(
+          //   collection(firestore, 'posts'),
+          //   where('voteStatus', '>', 0), //change number of voteStatus
+          //   // where('communityId', 'in', myCommunityIds),
+          //   orderBy('voteStatus', 'desc'),
+          //   orderBy('createdAt', 'desc'),
+          //   limit(50)
+          // );
+          // const postDocs = await getDocs(postQuery);
+          // const posts = postDocs.docs.map((doc) => ({
+          //   id: doc.id,
+          //   ...doc.data(),
+          // }));
+
+          // setPostStateValue((prev) => ({
+          //   ...prev,
+          //   posts: posts as Post[],
+          // }));
+          buildNoUserHomeFeed();
+        } else {
+          console.log('not enter if');
+
+          const postDocs = await getDocs(postQuery);
+          const posts = postDocs.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          setPostStateValue((prev) => ({
+            ...prev,
+            posts: posts as Post[],
+          }));
+        }
 
       }
       else {
@@ -66,7 +99,9 @@ const Home: NextPage = () => {
     try {
 
       const postQuery = query(
-        collection(firestore, 'posts'), orderBy('voteStatus', 'desc'), limit(10)
+        collection(firestore, 'posts'),
+        orderBy('voteStatus', 'desc'),
+        limit(50)
       );
 
       const postDocs = await getDocs(postQuery);
@@ -163,13 +198,15 @@ const Home: NextPage = () => {
                 homePage
               />
             ))}
+            {loadMore && <Button onClick={() => { }}>Load more post</Button>}
           </Stack>
+
         )}
       </>
       <Stack spacing={5}>
-        <Recommendations />
-        <Premium />
         <PersonalHome />
+        <Premium />
+        <Recommendations />
       </Stack>
     </PageContent>
   )

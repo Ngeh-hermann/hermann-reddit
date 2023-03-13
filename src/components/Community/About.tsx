@@ -2,7 +2,7 @@ import { Community, communityState } from '@/atoms/communitiesAtom';
 import { auth, firestore, storage } from '@/firebase/clientApp';
 import useCommunityData from '@/hooks/useCommunityData';
 import useSelectFile from '@/hooks/useSelectFile';
-import { Box, Button, Divider, Flex, Icon, Image, Input, Spinner, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Divider, Flex, Icon, Image, Input, Spinner, Stack, Text, useToast } from '@chakra-ui/react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import moment from 'moment';
@@ -28,6 +28,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
     const [uploadingImage, setUploadingImage] = useState(false)
     const setCommunityStateValue = useSetRecoilState(communityState)
     const { communityStateValue } = useCommunityData();
+    const toast = useToast();
 
     const onUpdateImage = async () => {
         if (!selectedFile) return;
@@ -47,6 +48,13 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                     imageURL: downloadURL,
                 } as Community
             }))
+            toast({
+                title: 'Comminuty image updated !',
+                position: 'top',
+                status: 'success',
+                duration: 5000,
+                isClosable: true,
+            })
 
         } catch (error: any) {
             console.log('updateImage error', error.message);

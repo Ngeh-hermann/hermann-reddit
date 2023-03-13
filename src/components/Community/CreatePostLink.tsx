@@ -1,7 +1,7 @@
 import { AuthModalState } from "@/atoms/authModalAtom";
 import { auth } from "@/firebase/clientApp";
 import useDirectory from "@/hooks/useDirectory";
-import { Flex, Icon, Input } from "@chakra-ui/react";
+import { Flex, Icon, Input, useToast } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
@@ -18,9 +18,22 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
     const setAuthModalState = useSetRecoilState(AuthModalState);
     const { toggleMenuOpen } = useDirectory();
 
+    const toast = useToast();
+
+    const infoMessage = (infoTitle: any) => {
+        toast({
+            title: `${infoTitle}`,
+            duration: 5000,
+            status: 'info',
+            isClosable: true,
+            position: 'top'
+        })
+    }
+
     const onClick = () => {
         if (!user) {
             setAuthModalState({ open: true, view: 'login' });
+            infoMessage("Please Login first.")
             return
         }
 
@@ -30,7 +43,8 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
             router.push(`/r/${communityId}/submit`);
             return
         }
-        toggleMenuOpen()
+        toggleMenuOpen();
+        infoMessage("Choose a community to post inside.")
     };
     return (
         <Flex

@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, Icon, Text } from '@chakra-ui/react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Flex, Icon, Text, useToast } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { BiPoll } from 'react-icons/bi'
 import { BsLink45Deg, BsMic } from 'react-icons/bs'
@@ -14,6 +14,7 @@ import { addDoc, collection, serverTimestamp, Timestamp, updateDoc } from 'fireb
 import { firestore, storage } from '@/firebase/clientApp';
 import { getDownloadURL, ref, uploadString } from 'firebase/storage';
 import useSelectFile from '@/hooks/useSelectFile';
+import { toast } from 'react-toastify'
 // import TabItem from './TabItem';
 
 type NewPostFormProps = {
@@ -60,6 +61,17 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user, communityImageURL }) =>
     const { selectedFile, setSelectedFile, onSelectFile } = useSelectFile()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
+    const toast = useToast();
+
+    const postToast = (toastMsg: any, toastStatus: any) => {
+        toast({
+            title: toastMsg,
+            status: toastStatus,
+            duration: 5000,
+            position: 'top',
+            isClosable: true,
+        })
+    }
 
     const handleCreatePost = async () => {
 
@@ -100,13 +112,14 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user, communityImageURL }) =>
             }
             //redirect the user back to the communityPage using router
             router.back()
+            postToast("Post created !", "success");
 
         } catch (error: any) {
             console.log('handleCreatePost error', error.message);
             setError(true)
+            postToast("Error while creating post", "error");
 
         }
-
         setLoading(false)
 
     }

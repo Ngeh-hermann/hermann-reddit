@@ -9,12 +9,13 @@ import {
     Stack,
     Text,
 } from "@chakra-ui/react";
-import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, limit, orderBy, query, where } from "firebase/firestore";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { FaReddit } from "react-icons/fa";
 import { Community } from "../../atoms/communitiesAtom";
-import { firestore } from "../../firebase/clientApp";
+import { auth, firestore } from "../../firebase/clientApp";
 import useCommunityData from "../../hooks/useCommunityData";
 
 type RecommendationsProps = {};
@@ -23,6 +24,7 @@ const Recommendations: React.FC<RecommendationsProps> = () => {
     const [communities, setCommunities] = useState<Community[]>([]);
     const [loading, setLoading] = useState(false);
     const { communityStateValue, onJoinOrLeaveCommunity } = useCommunityData();
+    const [user] = useAuthState(auth);
 
     const getCommunityRecommendations = async () => {
         setLoading(true);

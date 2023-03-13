@@ -1,7 +1,7 @@
 import { Community } from '@/atoms/communitiesAtom';
 import { auth } from '@/firebase/clientApp';
 import useCommunityData from '@/hooks/useCommunityData';
-import { Box, Button, Flex, Icon, Image, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Image, Text, Tooltip } from '@chakra-ui/react';
 import React from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { FaReddit } from 'react-icons/fa';
@@ -55,18 +55,26 @@ const Header: React.FC<HeaderProps> = ({ communityData }) => {
                                     r/{communityData.id}
                                 </Text>
                             </Flex>
-                            <Button
-                                variant={isJoined ? 'outline' : 'solid'}
-                                height='30px'
-                                pr={6} pl={6}
-                                isDisabled={user?.uid === communityData.creatorId}
-                                isLoading={loading}
-                                onClick={
-                                    () => onJoinOrLeaveCommunity(communityData, isJoined)
-                                }
+                            <Tooltip
+                                hasArrow
+                                bg='black' color='gray.300'
+                                placement='top'
+                                isDisabled={user?.uid != communityData.creatorId ? true : false}
+                                label={user?.uid === communityData.creatorId && `You can't leave your community`}
                             >
-                                {isJoined ? 'Joined' : 'Join'}
-                            </Button>
+                                <Button
+                                    variant={isJoined ? 'outline' : 'solid'}
+                                    height='30px'
+                                    pr={6} pl={6}
+                                    isDisabled={user?.uid === communityData.creatorId}
+                                    isLoading={loading}
+                                    onClick={
+                                        () => onJoinOrLeaveCommunity(communityData, isJoined)
+                                    }
+                                >
+                                    {isJoined ? 'Joined' : 'Join'}
+                                </Button>
+                            </Tooltip>
                         </Flex>
                     </Flex>
                 </Flex>
